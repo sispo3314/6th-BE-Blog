@@ -38,28 +38,28 @@ public class PostController {
         return "redirect:/posts";
     }
 
-    // 상세 (선택)
+    // 상세, 프론트 수준에서 구현되지 않음
     @GetMapping("/posts/{id}")
     public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("post", postService.getById(id));
         return "post-detail"; // 템플릿 만들면 사용
     }
 
-    // 수정 폼 (선택)
+    // 수정, 프론트 수준에서 구현되지 않음
     @GetMapping("/posts/{id}/edit")
     public String editForm(@PathVariable Long id, Model model) {
         model.addAttribute("post", postService.getById(id));
         return "edit-post"; // 템플릿 만들면 사용
     }
 
-    // 수정 처리 (선택)
+    // 수정처리, 프론트 수준에서 구현되지 않음
     @PostMapping("/posts/{id}/edit")
     public String edit(@PathVariable Long id, @ModelAttribute Post post) {
         postService.update(id, post.getTitle(), post.getContent());
         return "redirect:/posts/{id}";
     }
 
-    // 삭제 (선택)
+    // 삭제, 프론트 수준에서 구현하지 않음
     @PostMapping("/posts/{id}/delete")
     public String delete(@PathVariable Long id) {
         postService.delete(id);

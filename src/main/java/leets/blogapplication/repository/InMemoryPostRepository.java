@@ -10,9 +10,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 public class InMemoryPostRepository implements PostRepository {
-    // 💾 HashMap 저장소 (동시성 고려)
     private final Map<Long, Post> store = new ConcurrentHashMap<>();
-    // 🔑 Key 생성 책임: Repository / Key 타입: Long / 중복방지: AtomicLong 자동증가
     private final AtomicLong sequence = new AtomicLong(0L);
 
     @Override
@@ -24,7 +22,7 @@ public class InMemoryPostRepository implements PostRepository {
         Post post = new Post(title, content);
         post.setId(id);
         post.setCreatedAt(LocalDateTime.now());
-        post.setUpdatedAt(null); // 요구사항: 최초엔 null로 두기
+        post.setUpdatedAt(null); //최초엔 null로 두기
         store.put(id, post);
         return post;
     }
