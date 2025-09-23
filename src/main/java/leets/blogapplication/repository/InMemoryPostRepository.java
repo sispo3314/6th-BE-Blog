@@ -10,47 +10,71 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
 public class InMemoryPostRepository implements PostRepository {
-    private final Map<Long, Post> store = new ConcurrentHashMap<>();
-    private final AtomicLong sequence = new AtomicLong(0L);
+    private final Map<String, Post> store = new ConcurrentHashMap<>();
 
     @Override
-    public Post create(String title, String content) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("title은 비어 있을 수 없습니다.");
+    public Post create(Post post) {
+        if(post.getTitle() == null || post.getTitle().isEmpty()){
+            throw new IllegalArgumentException("Title cannot be null or empty");
+        } else if(post.getContent() == null || post.getContent().isEmpty()){
+            throw new IllegalArgumentException("Content cannot be null or empty");
         }
-        long id = sequence.incrementAndGet();
-        Post post = new Post(title, content);
+        LocalDateTime now = LocalDateTime.now();
+        post.setCreatedAt(now);
+        String id = UUID.randomUUID().toString();
         post.setId(id);
-        post.setCreatedAt(LocalDateTime.now());
-        post.setUpdatedAt(null); //최초엔 null로 두기
         store.put(id, post);
+        //setId의 id와 put의 id가 같은 id가 되긴 해?
         return post;
     }
 
     @Override
-    public List<Post> findAll() {
-        List<Post> list = new ArrayList<>(store.values());
-        list.sort(Comparator.comparing(Post::getId));
-        return list;
+    public List<Post> findAll(){
+        List<Post> posts = new ArrayList<>(store.values());
+        posts.sort(Comparator.comparing(Post::getId));
+        //일단 이렇게 쓰긴 하는데 created_at 아니면 updated_at으로 정렬성 보장할 수 있는 방법 강구하기
+        return posts;
     }
 
     @Override
-    public Optional<Post> findById(Long id) {
+    public Optional<Post> findById(String id) {
         return Optional.ofNullable(store.get(id));
     }
 
     @Override
-    public Post update(Long id, String title, String content) {
-        Post existing = store.get(id);
-        if (existing == null) throw new NoSuchElementException("존재하지 않는 ID: " + id);
-        if (title != null && !title.isBlank()) existing.setTitle(title);
-        if (content != null) existing.setContent(content);
-        existing.setUpdatedAt(LocalDateTime.now()); // 수정 시점 기록
-        return existing;
+    public Post update(String id, Post post) {
+        if(post.getTitle() == null || post.getTitle().isEmpty() || !store.containsKey(post.getId())){
+            throw new IllegalArgumentException("Post does not exist");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        store.get(id).setTitle(post.getTitle()).setContent(post.getContent()).setUpdatedAt(now);
+        return post;
     }
 
     @Override
-    public void deleteById(Long id) {
-        store.remove(id);
+    public List<Post> findByTitle(String title) {
+        if (title == null || title.isBlank()) return findAll();
+        String q = title.toLowerCase();
+
+        List<Post> result = new ArrayList<>();
+        for (Post p : store.values()) {
+            String t = p.getTitle();
+            if (t != null && t.toLowerCase().contains(q)) {
+                result.add(p);
+            }
+        }
+
+        // 결과 정렬 규칙(원하는 대로 바꿔도 됨): createdAt DESC
+        result.sort(Comparator.comparing(Post::getCreatedAt,
+                Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+        return result;
+    }
+
+    @Override
+    public void delete(String id) {
+        if(!store.containsKey(id)){
+            throw new IllegalArgumentException("Post does not exist");
+        }
+        store.remove(id); //id만 없애도 찾을 방법은 없음이 맞나? 내용까지 다 삭제 안해도 되려나?
     }
 }

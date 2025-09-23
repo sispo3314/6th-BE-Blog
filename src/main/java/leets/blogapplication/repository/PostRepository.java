@@ -7,12 +7,16 @@ import java.util.Optional;
 
 public interface PostRepository {
     // C
-    Post create(String title, String content);
-    // R
+    Post create(Post post);
+    // R(전체)
     List<Post> findAll();
-    Optional<Post> findById(Long id);
-    // U
-    Post update(Long id, String title, String content);
-    // D
-    void deleteById(Long id);
+    //R (상세)
+    Optional<Post> findById(String id);
+    //U
+    Post update(String id, Post post);
+    //D
+    void delete(String id);
+    //검색
+    List<Post> findByTitle(String title);
+
 }
