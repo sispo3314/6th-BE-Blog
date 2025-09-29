@@ -2,16 +2,16 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <title>게시글 목록</title>
+    <title th:text="'검색 결과 - ' + ${q}">검색 결과</title>
     <style>
         :root { --bg:#0f1115; --card:#171922; --muted:#9aa4b2; --fg:#eef2f7; --acc:#7aa2f7; --danger:#ef4444; }
         *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-sans-serif,system-ui}
         .wrap{max-width:960px;margin:32px auto;padding:0 16px}
         .bar{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-bottom:16px}
         .title{font-size:24px;font-weight:800}
+        .meta{color:var(--muted)}
         .btn{padding:10px 14px;border-radius:10px;border:1px solid #2a2f3a;background:#1b1f2a;color:var(--fg);text-decoration:none}
-        .btn:hover{border-color:var(--acc);box-shadow:0 0 0 3px #7aa2f722}
-        .btn.acc{background:linear-gradient(135deg,var(--acc),#9b8afc);border-color:transparent}
+        .btn:hover{border-color:var(--acc);box-shadow:0 0 0 3px #7aa2f3aa}
         .card{background:var(--card);border:1px solid #232838;border-radius:16px;overflow:hidden}
         table{width:100%;border-collapse:collapse}
         th,td{padding:14px 16px;border-bottom:1px solid #232838;text-align:left}
@@ -20,7 +20,6 @@
         .id{font-variant-numeric:tabular-nums;color:var(--muted)}
         .titleLink{color:var(--fg);text-decoration:none}
         .titleLink:hover{color:var(--acc)}
-        .meta{color:var(--muted);font-size:12px}
         .pill{display:inline-block;border:1px solid #2a2f3a;border-radius:999px;padding:2px 8px;font-size:12px;color:var(--muted)}
         .actions{display:flex;gap:8px}
     </style>
@@ -28,18 +27,9 @@
 <body>
 <div class="wrap">
     <div class="bar">
-        <div class="title">게시글 목록</div>
-
-        <!-- 네 방식의 검색: /posts/{title} 로 이동 -->
-        <div style="display:flex;gap:8px;align-items:center">
-            <input id="kw" type="text" placeholder="제목으로 검색"
-                   style="padding:10px 12px;border-radius:10px;border:1px solid #2a2f3a;background:#0f1320;color:#eef2f7;min-width:260px">
-            <button class="btn" type="button"
-                    onclick="location.href='/posts/' + encodeURIComponent(document.getElementById('kw').value)">
-                검색
-            </button>
-            <a class="btn acc" href="/post/new">새 글</a>
-        </div>
+        <div class="title">검색 결과</div>
+        <div class="meta" th:text="'검색어: ' + ${q}">검색어:</div>
+        <a class="btn" href="/posts">전체 목록</a>
     </div>
 
     <div class="card">
@@ -54,11 +44,10 @@
             </thead>
             <tbody>
             <tr th:if="${#lists.isEmpty(posts)}">
-                <td colspan="4" class="meta">등록된 글이 없습니다.</td>
+                <td colspan="4" class="meta">검색 결과가 없습니다.</td>
             </tr>
 
             <tr th:each="p : ${posts}">
-                <!-- ID 3글자 + … , 툴팁에 전체 ID -->
                 <td class="id"
                     th:title="${p.id}"
                     th:text="${#strings.length(p.id) > 3 ? #strings.substring(p.id,0,3) + '...' : p.id}">
@@ -66,7 +55,6 @@
                 </td>
 
                 <td>
-                    <!-- 단건 상세는 /PostM/{id} -->
                     <a class="titleLink" th:text="${p.title}" th:href="@{|/post/${p.id}|}">제목</a>
                     <div class="meta" th:text="${#strings.abbreviate(p.content, 64)}">요약</div>
                 </td>
