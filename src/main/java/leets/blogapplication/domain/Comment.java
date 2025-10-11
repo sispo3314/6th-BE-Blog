@@ -8,7 +8,7 @@ public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long comId;
+    private Long commentId;
 
     @Column(name = "detail", nullable = false)
     private String detail;
@@ -24,11 +24,10 @@ public class Comment {
     protected Comment() {
     }
 
-    public static Comment create(String detail, Post post, User user) {
+    public static void create(String detail, Post post, User user) {
         Comment c = new Comment();
         c.detail = detail;
         c.post = post;
         c.user = user;
-        return c;
     }
 }

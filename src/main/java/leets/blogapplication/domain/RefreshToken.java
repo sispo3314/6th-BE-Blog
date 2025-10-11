@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long refId;
+    private Long refreshTokenId;
 
     @Column(nullable = false)
     private String token;
