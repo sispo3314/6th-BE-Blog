@@ -1,6 +1,6 @@
 package com.leets.backend.blog.service;
 
-import com.leets.backend.blog.model.Post;
+import com.leets.backend.blog.entity.Post;
 import com.leets.backend.blog.repository.PostRepository;
 import org.springframework.stereotype.Service;
 

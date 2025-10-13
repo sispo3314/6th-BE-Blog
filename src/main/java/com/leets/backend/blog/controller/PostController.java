@@ -1,6 +1,6 @@
 package com.leets.backend.blog.controller;
 
-import com.leets.backend.blog.model.Post;
+import com.leets.backend.blog.entity.Post;
 import com.leets.backend.blog.service.PostService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
