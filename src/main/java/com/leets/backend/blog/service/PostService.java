@@ -24,7 +24,7 @@ public class PostService {
         this.userRepository = userRepository;
     }
 
-
+    /** 전체 게시글 조회 */
     @Transactional(readOnly = true)
     public List<Post> getPosts() {
         return postRepository.findAll();
@@ -37,23 +37,28 @@ public class PostService {
         return new PostDetailResponse(post);
     }
 
-
     public PostDetailResponse create(PostRequest request) {
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
         post.setThumbnail(request.getThumbnail());
 
-        User author=userRepository.findById(request.getAuthorId())
-                .orElseThrow(()->new IllegalArgumentException("작성자를 찾을 수 없어요:"+request.getAuthorId()));
-            post.setAuthor(author);
+
+        User author;
+        if (request.getAuthorId() != null) {
+            author = userRepository.findById(request.getAuthorId())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다."));
+        } else {
+            author = userRepository.findById(1L)
+                    .orElseThrow(() -> new IllegalArgumentException("기본 유저(1L)를 찾을 수 없습니다."));
+        }
+        post.setAuthor(author);
 
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             for (int i = 0; i < request.getImageUrls().size(); i++) {
                 PostImage image = new PostImage();
                 image.setImageUrl(request.getImageUrls().get(i));
                 image.setPost(post);
-                // image.setOrder(i + 1); // order 필드 쓸 경우
                 post.getImages().add(image);
             }
         }
@@ -62,7 +67,7 @@ public class PostService {
         return new PostDetailResponse(saved);
     }
 
-    /** 게시글 수정 */
+
     public PostDetailResponse update(Long id, PostRequest request) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
@@ -71,21 +76,21 @@ public class PostService {
         post.setContent(request.getContent());
         post.setThumbnail(request.getThumbnail());
 
+        // 기존 이미지 제거 후 다시 등록
         post.getImages().clear();
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             for (int i = 0; i < request.getImageUrls().size(); i++) {
                 PostImage image = new PostImage();
                 image.setImageUrl(request.getImageUrls().get(i));
                 image.setPost(post);
-                // image.setOrder(i + 1);
                 post.getImages().add(image);
             }
         }
 
-        return new PostDetailResponse(post); // JPA 더티체킹으로 자동 업데이트
+        return new PostDetailResponse(post);
     }
 
-    /** 게시글 삭제 */
+
     public void delete(Long id) {
         if (!postRepository.existsById(id)) {
             throw new IllegalArgumentException("존재하지 않는 게시글입니다.");
