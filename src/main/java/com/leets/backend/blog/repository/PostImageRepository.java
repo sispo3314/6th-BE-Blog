@@ -1,6 +1,6 @@
 package com.leets.backend.blog.repository;
 
-import com.leets.backend.blog.model.PostImage;
+import com.leets.backend.blog.entity.PostImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
