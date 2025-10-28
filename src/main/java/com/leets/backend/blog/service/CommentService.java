@@ -1,5 +1,6 @@
 package com.leets.backend.blog.service;
 
+import com.leets.backend.blog.dto.CommentResponse;
 import com.leets.backend.blog.entity.*;
 import com.leets.backend.blog.repository.*;
 import org.springframework.stereotype.Service;
@@ -29,8 +30,10 @@ public class CommentService {
         return commentRepository.save(comment);
     }
 
-    public List<Comment> getCommentByPost(Long postId){
-        return commentRepository.findByPost_IdOrderByCreatedAtAsc(postId);
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getCommentResponsesByPost(Long postId) {
+        List<Comment> comments = commentRepository.findByPost_IdOrderByCreatedAtAsc(postId);
+        return comments.stream().map(CommentResponse::new).toList();
     }
 
     public Comment update(Long commentId, Long userId, String newContent){

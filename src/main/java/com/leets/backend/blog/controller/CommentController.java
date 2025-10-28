@@ -19,11 +19,11 @@ public class CommentController {
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
     }
-    
-    @Operation(summary="댓글 조회")
+
+    @Operation(summary="댓글 목록 조회")
     @GetMapping("/post/{postId}")
-    public List<Comment> getCommentsByPost(@PathVariable Long postId) {
-        return commentService.getCommentByPost(postId);
+    public List<CommentResponse> getCommentsByPost(@PathVariable Long postId) {
+        return commentService.getCommentResponsesByPost(postId);
     }
 
     @Operation(summary="댓글 생성")
