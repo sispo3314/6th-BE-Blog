@@ -28,6 +28,21 @@ public class Comment {
 
     public Comment(){}
 
+    public static Comment create(Post post, User author, String content) {
+        Comment comment = new Comment();
+        comment.post = post;
+        comment.author = author;
+        comment.content = content;
+        comment.createdAt = LocalDateTime.now();
+        comment.updatedAt = LocalDateTime.now();
+        return comment;
+    }
+
+    public void updateContent(String newContent){
+        this.content=newContent;
+        this.updatedAt=LocalDateTime.now();
+    }
+
     public Long getId(){return id;}
     public Post getPost(){return post;}
     public User getAuthor(){return author;}
