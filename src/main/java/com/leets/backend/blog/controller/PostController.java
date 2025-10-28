@@ -1,61 +1,74 @@
 package com.leets.backend.blog.controller;
 
-import com.leets.backend.blog.model.Post;
+import com.leets.backend.blog.common.ApiResponse;
+import com.leets.backend.blog.dto.PostDetailResponse;
+import com.leets.backend.blog.dto.PostRequest;
+import com.leets.backend.blog.dto.PostResponse;
+import com.leets.backend.blog.entity.Post;
 import com.leets.backend.blog.service.PostService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
-@RequestMapping
-public class PostController{
+@Tag(name = "게시물", description = "게시물 CRUD REST API")
+@RestController
+@RequestMapping("/posts")
+public class PostController {
+
     private final PostService postService;
 
-    public PostController(PostService postService){
-        this.postService=postService;
-    }
-    //글 목록
-    @GetMapping("/posts")
-    public String posts(Model model){
-        List<Post> posts=postService.getPosts();
-        model.addAttribute("posts", posts);
-        return "posts";
+    public PostController(PostService postService) {
+        this.postService = postService;
     }
 
-    //새 글 작성하기
-    @GetMapping("/post/new")
-    public String newPostForm(Model model){
-        model.addAttribute("postForm", new PostForm());
-        return "new-post";
-    }
-    @PostMapping("/post/new")
-    public String create(@Valid @ModelAttribute("postForm") PostForm form,
-                         BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "new-post";
-        }
-        postService.create(form.getTitle(), form.getContent());
-        return "redirect:/posts";
+    // 목록 (현재 PostService#getPosts() 시그니처에 맞춰서 DTO 변환만 컨트롤러에서 수행)
+    @Operation(summary = "게시물 목록 조회")
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<PostResponse>>> list() {
+        List<Post> posts = postService.getPosts();
+        List<PostResponse> body = posts.stream()
+                .map(PostResponse::new) // 엔티티 -> DTO 생성자
+                .toList();
+        return ResponseEntity.ok(ApiResponse.success(body));
     }
 
-    public static class PostForm {
-        @NotBlank(message = "제목은 필수입니다.")
-        private String title;
-        @NotBlank(message  = "내용은 필수입니다.")
-        private String content;
+    // 상세
+    @Operation(summary = "게시물 상세 조회")
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<PostDetailResponse>> get(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(postService.getPost(id)));
+    }
 
+    // 생성
+    @Operation(summary = "게시물 생성")
+    @PostMapping
+    public ResponseEntity<ApiResponse<PostDetailResponse>> create(@Valid @RequestBody PostRequest request) {
+        PostDetailResponse created = postService.create(request); // PostService 시그니처에 맞춤
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(created, "게시물이 생성되었습니다."));
+    }
 
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getContent() { return content; }
-        public void setContent(String content) { this.content = content; }
+    // 수정 (전체/부분 동일 DTO 사용 시)
+    @Operation(summary = "게시물 수정")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PostDetailResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody PostRequest request
+    ) {
+        PostDetailResponse updated = postService.update(id, request);
+        return ResponseEntity.ok(ApiResponse.success(updated, "게시물이 수정되었습니다."));
+    }
+
+    // 삭제
+    @Operation(summary = "게시물 삭제")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        postService.delete(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "게시물이 삭제되었습니다."));
     }
 }
