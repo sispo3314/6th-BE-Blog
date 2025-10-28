@@ -1,12 +1,14 @@
 package com.leets.backend.blog.service;
 
-import com.leets.backend.blog.dto.PostRequest;
+import com.leets.backend.blog.dto.PostCreateRequest;
 import com.leets.backend.blog.dto.PostDetailResponse;
+import com.leets.backend.blog.dto.PostUpdateRequest;
 import com.leets.backend.blog.entity.Post;
 import com.leets.backend.blog.entity.PostImage;
 import com.leets.backend.blog.entity.User;
 import com.leets.backend.blog.repository.PostRepository;
 import com.leets.backend.blog.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +39,7 @@ public class PostService {
         return new PostDetailResponse(post);
     }
 
-    public PostDetailResponse create(PostRequest request) {
+    public PostDetailResponse create(PostCreateRequest request) {
         Post post = new Post();
         post.setTitle(request.getTitle());
         post.setContent(request.getContent());
@@ -68,7 +70,7 @@ public class PostService {
     }
 
 
-    public PostDetailResponse update(Long id, PostRequest request) {
+    public PostDetailResponse update(Long id, @Valid PostUpdateRequest request) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없습니다."));
 

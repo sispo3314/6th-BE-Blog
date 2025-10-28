@@ -2,8 +2,9 @@ package com.leets.backend.blog.controller;
 
 import com.leets.backend.blog.common.ApiResponse;
 import com.leets.backend.blog.dto.PostDetailResponse;
-import com.leets.backend.blog.dto.PostRequest;
+import com.leets.backend.blog.dto.PostCreateRequest;
 import com.leets.backend.blog.dto.PostResponse;
+import com.leets.backend.blog.dto.PostUpdateRequest;
 import com.leets.backend.blog.entity.Post;
 import com.leets.backend.blog.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +48,7 @@ public class PostController {
     // 생성
     @Operation(summary = "게시물 생성")
     @PostMapping
-    public ResponseEntity<ApiResponse<PostDetailResponse>> create(@Valid @RequestBody PostRequest request) {
+    public ResponseEntity<ApiResponse<PostDetailResponse>> create(@Valid @RequestBody PostCreateRequest request) {
         PostDetailResponse created = postService.create(request); // PostService 시그니처에 맞춤
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(created, "게시물이 생성되었습니다."));
@@ -58,7 +59,7 @@ public class PostController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<PostDetailResponse>> update(
             @PathVariable Long id,
-            @Valid @RequestBody PostRequest request
+            @Valid @RequestBody PostUpdateRequest request
     ) {
         PostDetailResponse updated = postService.update(id, request);
         return ResponseEntity.ok(ApiResponse.success(updated, "게시물이 수정되었습니다."));
