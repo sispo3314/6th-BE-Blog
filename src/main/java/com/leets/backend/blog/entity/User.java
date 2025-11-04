@@ -52,6 +52,16 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Token> tokens=new ArrayList<>();
 
+    public static User createLocal(String email, String encodedPas, String nick, String name) {
+        User u = new User();
+        u.authIdentities = "local";
+        u.email = email;
+        u.pas = encodedPas;
+        u.nick = nick;
+        u.name=name;
+        u.createdAt = LocalDateTime.now();
+        return u;
+    }
     public Long getId(){return id;}
     public String getAuthIdentities(){return authIdentities;}
     public String getEmail(){return email;}

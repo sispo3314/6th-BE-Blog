@@ -23,7 +23,14 @@ public class Token {
     private LocalDateTime expiredAt;
 
     public Token(){}
-
+    public static Token of(User user, byte[] tokenHash, LocalDateTime issuedAt, LocalDateTime expiredAt) {
+        Token token = new Token();
+        token.user = user;
+        token.tokenHash = tokenHash;
+        token.issuedAt = issuedAt;
+        token.expiredAt = expiredAt;
+        return token;
+    }
     public Long getId(){return id;}
     public User getUser(){return user;}
     public byte[] getTokenHash(){return tokenHash;}

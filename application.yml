@@ -21,3 +21,10 @@ springdoc:
     path: /swagger-ui
     operationsSorter: method
     tagsSorter: alpha
+
+
+security:
+  jwt:
+    secret: g7Wn9vKzE9f3HqV4zD0OErfYh8cKq6LxT0ZzB+Q8m9GfHkP7d9Sxv2Aq9rV1p3Wn==
+    access-exp: 1800
+    refresh-exp: 1209600
