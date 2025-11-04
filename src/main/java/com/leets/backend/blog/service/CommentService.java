@@ -21,12 +21,12 @@ public class CommentService {
     }
 
     public Comment create(Long postId, Long userId, String content){
-        Post post=postRepository.findById(postId)
-                .orElseThrow(()->new IllegalArgumentException("해당 게시글을 찾을 수 없어요"));
-        User user=userRepository.findById(userId)
-                .orElseThrow(()->new IllegalArgumentException("해당 유저를 찾을 수 없어요"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글을 찾을 수 없어요"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저를 찾을 수 없어요"));
 
-        Comment comment=Comment.create(post, user, content);
+        Comment comment = Comment.create(post, user, content);
         return commentRepository.save(comment);
     }
 
@@ -36,27 +36,32 @@ public class CommentService {
         return comments.stream().map(CommentResponse::new).toList();
     }
 
-    public Comment update(Long commentId, Long userId, String newContent){
-        Comment comment=commentRepository.findById(commentId)
-                .orElseThrow(()->new IllegalArgumentException("댓글이 존재하지 않아요"));
+    public Comment update(Long postId, Long commentId, Long userId, String newContent){
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않아요"));
 
-        if(!comment.getAuthor().getId().equals(userId)){
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("해당 게시글의 댓글이 아니에요");
+        }
+
+        if (!comment.getAuthor().getId().equals(userId)) {
             throw new IllegalArgumentException("댓글 작성자만 수정할 수 있어요");
-        };
+        }
 
         comment.updateContent(newContent);
         return comment;
     }
 
-    public void delete(Long commentId, Long userId){
-        Comment comment=commentRepository.findById(commentId)
-                .orElseThrow(()->new IllegalArgumentException("댓글이 존재하지 않아요"));
-
-        if(!comment.getAuthor().getId().equals(userId)){
+    public void delete(Long postId, Long commentId, Long userId){
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글이 존재하지 않아요"));
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("해당 게시글의 댓글이 아니에요");
+        }
+        if (!comment.getAuthor().getId().equals(userId)) {
             throw new IllegalArgumentException("댓글 작성자만 삭제할 수 있어요");
         }
 
         commentRepository.delete(comment);
     }
-
 }
