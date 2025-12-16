@@ -21,3 +21,4 @@ out/
 *.jar
 
 .pem
+.env
